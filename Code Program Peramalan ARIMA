@@ -1,0 +1,129 @@
+pip install pandas numpy matplotlib statsmodels 
+import pandas as pd import numpy as np 
+import matplotlib.pyplot as plt 
+import statsmodels.api as sm from statsmodels.tsa.arima.model 
+import ARIMA from statsmodels.graphics.tsaplots 
+import plot_acf, plot_pacf from statsmodels.tsa.stattools 
+import acf, pacf from statsmodels.stats.diagnostic import acorr_ljungbox 
+
+#LOAD DATA 
+#Membaca data dari file excel 
+data = pd.read_excel('Data.xlsx') 
+
+data str(data) 
+#Mengecek dimensi data 
+print("Dimensi Data :") 
+print(data.shape)  #Menampilkan jumlah baris dan kolom 
+#Menampilkan nama variabel data
+print("\nVariabel Data :") 
+print(data)  #Menampilkan nama kolom 
+
+#Mengecek missing value print("\nMissing Value :") 
+print(data.isnull().sum())  #Menampilkan jumlah missing value per kolom 
+
+#Menampilkan statistik deskriptif 
+print("Statistik Deskriptif :") 
+print(data.describe()) 
+
+#Hanya mengambil kolom JUmlah Pengunjung 
+df = data['Jumlah Pengunjung'] 
+#Menampilkan ringkasan data df 
+df = pd.Series(df) #
+
+Memplot time series data 
+plt.plot(df) plt.xlabel("Bulan") 
+plt.ylabel('Jumlah Pengunjung') 
+plt.title('Plot Data Time Series') 
+plt.show() 
+
+#Membuat plot ACF 
+plot_acf(df) 
+plt.xlabel('Lag') 
+plt.ylabel('Autocorrelation') 
+plt.title('Autocorrelation Function (ACF)') 
+plt.show() 
+
+#Menghitung nilai ACF 
+acf_values = acf(df, nlags = 10) 
+#Menampilkan nilai ACF 
+print("Nilai ACF :") 
+print(acf_values) 
+
+#Membuat plot PACF 
+plot_pacf(df) 
+plt.xlabel('Lag') 
+plt.ylabel('Partial Autocorrelation') 
+plt.title('Partial Autocorrelation Function (PACF)') 
+plt.show() 
+
+#Menghitung nilai PACF 
+pacf_values = pacf(df, nlags = 10) 
+#Menampilkan nilai PACF 
+print("Nilai PACF :") 
+print(pacf_values) 
+
+#DIFFERENCING DATA 
+#Melakukan differencing pada data 
+data_differenced = df.diff().dropna() 
+
+#Memplot data setelah differencing 
+data_differenced.plot() 
+plt.xlabel("Bulan") 
+plt.ylabel('Jumlah Pengunjung') 
+plt.title('Plot Data Time Series') 
+plt.show() 
+
+#Membuat plot ACF 
+plot_acf(data_differenced) 
+plt.xlabel('Lag') 
+plt.ylabel('Autocorrelation') 
+plt.title('Autocorrelation Function (ACF)') 
+plt.show() 
+
+#Menghitung nilai ACF 
+acf_values = acf(data_differenced, nlags = 10) 
+#Menampilkan nilai ACF 
+print("Nilai ACF :") 
+print(acf_values) 
+
+#Membuat plot PACF 
+plot_pacf(data_differenced) 
+plt.xlabel('Lag') 
+plt.ylabel('Partial Autocorrelation') 
+plt.title('Partial Autocorrelation Function (PACF)') 
+plt.show() 
+
+#Menghitung nilai PACF 
+pacf_values = pacf(data_differenced, nlags = 10) 
+#Menampilkan nilai PACF 
+print("Nilai PACF :") 
+print(pacf_values) 
+
+#SPLIT DATA 
+#Menghitung jumlah data untuk set pengujian (misalnya 20%) 
+test_size = int(len(df) * 0.2) 
+#Memisahkan data menjadi set pelatihan dan set pengujian 
+train_data = df[:-test_size] test_data = df[-test_size:] 
+#Menampilkan jumlah data set pelatihan dan set pengujian 
+print("Jumlah data pelatihan:", len(train_data)) 
+print("Jumlah data pengujian:", len(test_data)) 
+
+#MODEL ARIMA 
+#Membangun model ARIMA 
+model = ARIMA(df, order = (6, 1, 5)) 
+result = model.fit() 
+#Menampilkan hasil summary model ARIMA 
+print(result.summary()) 
+
+df.mean() 
+#Plot residual errors 
+residuals = pd.DataFrame(result.resid) 
+residuals.plot(title="Residuals") 
+plt.show()
+
+#PERAMALAN 
+#Melakukan prediksi pada data pengujian 
+predictions = result.forecast(steps = 12) 
+#Menampilkan hasil prediksi 
+print("Hasil Prediksi:") 
+print(predictions)
